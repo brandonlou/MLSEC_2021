@@ -7,6 +7,7 @@ import re
 from sklearn.feature_extraction.text import HashingVectorizer
 
 
+#STOP_WORDS = ['0f', '72', '73', '74', '75', '76', '77', '78', '79', '7a', '7b', '7c', '7d', '7e', '7f', '9a', 'c3', 'c2', 'ca', 'cb', 'e0', 'e1', 'e2', 'e3', 'e8', 'ff']
 STOP_WORDS = []
 LINES_TO_SKIP = 7
 HASH_BITS = 12
