@@ -14,9 +14,10 @@ HASH_BITS = 12
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('malign', type=str, help='directory containing malign pe files')
+    parser.add_argument('malign', type=str, help='directory containing malicious pe files')
     parser.add_argument('benign', type=str, help='directory containing benign pe files')
-    parser.add_argument('output', type=str, help='filename of pickled features')
+    parser.add_argument('-f', '--features', type=str, help='output filename containing pickled features')
+    parser.add_argument('-v', '--vectorizer', type=str, help='output filename containing vectorizer used')
     return parser.parse_args()
 
 
@@ -51,7 +52,8 @@ def main():
     args = parse_args()
     malign_dir = args.malign
     benign_dir = args.benign
-    output_filename = args.output
+    features_filename = args.features
+    vectorizer_filename = args.vectorizer
 
     # Any number of whitespace, one or more hex characters, colon, any number of whitespace, two hex characters    
     prog = re.compile(r"\s+[0-9A-Fa-f]+:\s+([0-9A-Fa-f][0-9A-Fa-f])")
@@ -74,9 +76,15 @@ def main():
     vectorizer = HashingVectorizer(input='content', lowercase=False, stop_words=STOP_WORDS, ngram_range=(2, 2), analyzer='word', n_features=2**HASH_BITS)
     X = vectorizer.fit_transform(corpus)
 
-    with open(output_filename, 'wb') as output_file:
-        pickle.dump((X, y), output_file, protocol=pickle.HIGHEST_PROTOCOL)
-    print(f'Saved features to {output_filename}')
+    if features_filename is not None:
+        with open(features_filename, 'wb') as features_file:
+            pickle.dump((X, y), features_file, protocol=pickle.HIGHEST_PROTOCOL)
+        print(f'Saved features to {features_filename}')
+
+    if vectorizer_filename is not None:
+        with open(vectorizer_filename, 'wb') as vectorizer_file:
+            pickle.dump(vectorizer, vectorizer_file, protocol=pickle.HIGHEST_PROTOCOL)
+        print(f'Saved vectorizer to {vectorizer_filename}')
 
 
 if __name__ == '__main__':
