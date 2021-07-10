@@ -1,15 +1,17 @@
 import argparse
 import pickle
 from numpy import array, mean
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, f1_score, precision_score, recall_score, roc_auc_score
 from sklearn.model_selection import StratifiedKFold
+from lightgbm import LGBMClassifier
 
 
 NUM_FOLDS = 10
-NUM_ESTIMATORS = 60
-MAX_DEPTH = 30
-THRESHOLD = 0.87
+NUM_LEAVES = 32
+MAX_DEPTH = 15
+LEARNING_RATE = 0.3
+NUM_TREES = 500
+THRESHOLD = 0.5
 
 
 def parse_args():
@@ -20,7 +22,7 @@ def parse_args():
 
 
 def get_model():
-    model = RandomForestClassifier(n_estimators=NUM_ESTIMATORS, criterion='entropy', max_depth=MAX_DEPTH, n_jobs=-1, random_state=1)
+    model = LGBMClassifier(boosting_type='gbdt', num_leaves=NUM_LEAVES, max_depth=MAX_DEPTH, learning_rate=LEARNING_RATE, n_estimators=NUM_TREES, objective='binary', reg_alpha=0.1, random_state=1, n_jobs=-1)
     return model
 
 
@@ -41,6 +43,7 @@ def main():
 
     kfold = StratifiedKFold(n_splits=NUM_FOLDS, shuffle=True, random_state=1)
     current_fold = 1
+    
     for train, test in kfold.split(X, y):
         model = get_model()
         model.fit(X[train], y[train])
@@ -48,6 +51,7 @@ def main():
         y_pred = [int(p >= THRESHOLD) for p in y_proba]
         y_test = y[test]
 
+        # Calculate metrics.
         accuracy.append(accuracy_score(y_test, y_pred))
         precision.append(precision_score(y_test, y_pred))
         recall.append(recall_score(y_test, y_pred))
