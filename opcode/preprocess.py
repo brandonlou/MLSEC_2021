@@ -9,7 +9,6 @@ from sklearn.feature_extraction.text import HashingVectorizer
 
 #STOP_WORDS = ['0f', '72', '73', '74', '75', '76', '77', '78', '79', '7a', '7b', '7c', '7d', '7e', '7f', '9a', 'c3', 'c2', 'ca', 'cb', 'e0', 'e1', 'e2', 'e3', 'e8', 'ff']
 STOP_WORDS = []
-LINES_TO_SKIP = 7
 HASH_BITS = 12
 
 
@@ -36,12 +35,12 @@ def extract_opcodes(filename: str, prog) -> str:
 
     for line in objdump.splitlines():
         # Only want to read one code section for now
-        if line[0:11] == 'Disassembly':
-            if first_section:
-                break
-            else:
-                first_section = True
-                continue
+        #if line[0:11] == 'Disassembly':
+        #    if first_section:
+        #        break
+        #    else:
+        #        first_section = True
+        #        continue
         result = prog.match(line)
         if result is not None:
             opcode = result.group(1)
