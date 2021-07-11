@@ -1,17 +1,17 @@
 import argparse
 import pickle
 from numpy import array, mean
-from sklearn.metrics import accuracy_score, confusion_matrix, f1_score, precision_score, recall_score, roc_auc_score
-from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import accuracy_score, confusion_matrix, f1_score, precision_score, recall_score, roc_auc_score, make_scorer
+from sklearn.model_selection import StratifiedKFold, GridSearchCV
 from lightgbm import LGBMClassifier
 
 
 NUM_FOLDS = 10
 NUM_LEAVES = 32
-MAX_DEPTH = 15
-LEARNING_RATE = 0.3
-NUM_TREES = 500
-THRESHOLD = 0.5
+MAX_DEPTH = 12
+LEARNING_RATE = 0.25
+NUM_TREES = 75
+THRESHOLD = 0.5 #0.998
 
 
 def parse_args():
@@ -26,6 +26,23 @@ def get_model():
     return model
 
 
+def optimize_model(X, y):
+    score = make_scorer(roc_auc_score, max_fpr=5e-3)
+    param_grid = {
+        'boosting_type': ['gbdt'],
+        'objective': ['binary'],
+        'num_iterations': [500, 1000],
+        'learning_rate': [0.005, 0.05, 0.1, 0.25, 0.5],
+        'num_leaves': [16, 32, 64, 128, 256, 512, 1024, 2048],
+        'feature_fraction': [0.5, 0.8, 1.0],
+        'bagging_fraction': [0.5, 0.8, 1.0]
+    }
+    model = LGBMClassifier(n_jobs=-1, silent=True)
+    grid = GridSearchCV(estimator=model, cv=NUM_FOLDS, param_grid=param_grid, scoring=score, n_jobs=1, verbose=3)
+    grid.fit(X, y)
+    return grid.best_params_
+
+
 def main():
     args = parse_args()
     
@@ -33,6 +50,10 @@ def main():
         data = pickle.load(feature_file)
     X = data[0]
     y = array(data[1])
+
+    #best_params = optimize_model(X, y)
+    #print(best_params)
+    #exit()
 
     accuracy = []
     precision = []
@@ -63,12 +84,12 @@ def main():
         print(f'Fold {current_fold} complete')
         current_fold += 1
 
-    print(f'Accuracy: {round(mean(accuracy), 3):.3f}')
-    print(f'Precision: {round(mean(precision), 3):.3f}')
-    print(f'Recall: {round(mean(recall), 3):.3f}')
-    print(f'AUC: {round(mean(auc), 3):.3f}')
-    print(f'FP Rate: {round(mean(fp_rate), 3):.3f}')
-    print(f'F1 Score: {round(mean(f1), 3):.3f}')
+    print(f'Accuracy: {round(mean(accuracy), 4):.4f}')
+    print(f'Precision: {round(mean(precision), 4):.4f}')
+    print(f'Recall: {round(mean(recall), 4):.4f}')
+    print(f'AUC: {round(mean(auc), 4):.4f}')
+    print(f'FP Rate: {round(mean(fp_rate), 4):.4f}')
+    print(f'F1 Score: {round(mean(f1), 4):.4f}')
 
     # Create a single model fitted from all available data.
     model = get_model()
