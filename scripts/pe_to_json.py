@@ -1,15 +1,23 @@
+import argparse
 import json
 import os
+import py
 import sys
 from ember import PEFeatureExtractor
-import py
 
 
-input_dir = 'samples/malign'
-output_dir = 'malign'
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('input_dir', type=str, help='directory containing raw pe files')
+    parser.add_argument('output_dir', type=str, help='directory to contain feature JSONs')
+    return parser.parse_args()
 
 
 def main():
+    args = parse_args()
+    input_dir = args.input_dir
+    output_dir = args.output_dir
+
     # Capture all stderr from lief (C++ module)
     capture = py.io.StdCaptureFD(out=False, in_=False)
    
