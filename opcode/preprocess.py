@@ -1,4 +1,5 @@
 import argparse
+import numpy as np
 import os
 import pickle
 import subprocess
@@ -50,7 +51,7 @@ def main():
             y.append(0)
     
     print('Vectorizing opcodes...')
-    vectorizer = HashingVectorizer(input='content', lowercase=False, stop_words=STOP_WORDS, ngram_range=(2, 2), analyzer='word', n_features=2**HASH_BITS)
+    vectorizer = HashingVectorizer(input='content', lowercase=False, stop_words=STOP_WORDS, ngram_range=(2, 2), analyzer='word', n_features=2**HASH_BITS, dtype=np.float32)
     X = vectorizer.fit_transform(corpus)
 
     if features_filename is not None:
