@@ -6,12 +6,22 @@ from sklearn.model_selection import StratifiedKFold, GridSearchCV
 from lightgbm import LGBMClassifier
 
 
+"""
+Accuracy: 0.9378
+Precision: 0.9549
+Recall: 0.9169
+AUC: 0.9375
+FP Rate: 0.0420
+F1 Score: 0.9355
+"""
+
+
 NUM_FOLDS = 10
 NUM_LEAVES = 32
 MAX_DEPTH = 12
 LEARNING_RATE = 0.25
-NUM_TREES = 75
-THRESHOLD = 0.5 #0.998
+NUM_TREES = 350
+THRESHOLD = 0.9
 
 
 def parse_args():
@@ -26,6 +36,7 @@ def get_model():
     return model
 
 
+"""
 def optimize_model(X, y):
     score = make_scorer(roc_auc_score, max_fpr=5e-3)
     param_grid = {
@@ -41,6 +52,7 @@ def optimize_model(X, y):
     grid = GridSearchCV(estimator=model, cv=NUM_FOLDS, param_grid=param_grid, scoring=score, n_jobs=1, verbose=3)
     grid.fit(X, y)
     return grid.best_params_
+"""
 
 
 def main():
