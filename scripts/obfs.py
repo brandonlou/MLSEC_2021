@@ -1,8 +1,9 @@
 import ahocorasick
 import argparse
 import base64
-import pickle
 import os
+import pickle
+
 
 class ObfuscationDetector:
     def __init__(self, automaton_filename=''):
@@ -11,7 +12,7 @@ class ObfuscationDetector:
                 self.A = pickle.load(automaton_pkl)
         else:
             self.A = ahocorasick.Automaton()
-            word_list = ('This program', 'Rich', '.text', '.data', '.rdata', '.reloc', '.rsrc', '.dll', 'System')
+            word_list = ('This program', 'Rich', '.text', '.data', '.rdata', '.reloc', '.rsrc', '.dll', 'System', 'Microsoft', 'microsoft', 'Window', 'window')
             # XOR encode the word list
             for key in range(1, 256):
                 for word in word_list:
@@ -54,7 +55,7 @@ class ObfuscationDetector:
                 decoded = str(base64.b64decode(original_value), 'utf-8')
                 print(f'Found: {decoded} (base64)')
         for key in found_strings.keys():
-            if len(found_strings[key]) >= 2:
+            if len(found_strings[key]) >= 3:
                 print('Malicious!')
                 return True
         print('Benign')
@@ -63,11 +64,25 @@ class ObfuscationDetector:
 
 def main():
     obfs = ObfuscationDetector()
-    for filename in os.listdir('MLSEC_2019_samples_and_variants'):
-        malicious = obfs.analyze_file(f'MLSEC_2019_samples_and_variants/{filename}')
-        if malicious:
-            print(filename)
- 
+    obfs.analyze_file('/home/brandon/pe_data/raw/benign/ben_program_files_x86/spDx9.dll')
+    """
+    directory = '/home/brandon/pe_data/raw/benign'
+    file_count = 0
+    mal_count = 0
+    for root, dirs, files in os.walk(directory):
+        for name in files:
+            if name[0] == '.': # Skip hidden files
+                continue
+            filename = os.path.join(root, name)
+            malicious = obfs.analyze_file(filename)
+            file_count += 1
+            if malicious:
+                mal_count += 1
+                print(filename)
+    print('File count:', file_count)
+    print('Malicious count:', mal_count)
+    """
+
 if __name__ == '__main__':
     main()
 
