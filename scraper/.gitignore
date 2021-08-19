@@ -1,0 +1,8 @@
+# Ignore Python cache
+__pycache__/
+
+# Ignore log files
+geckodriver.log
+
+# Ignore all download directories
+*downloads/
