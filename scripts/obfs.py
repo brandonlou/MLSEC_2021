@@ -44,29 +44,27 @@ class ObfuscationDetector:
                 found_strings[key].add(original_value)
             if key < 256:
                 decoded = [chr(b ^ key) for b in original_value]
-                print(f"Found: {''.join(decoded)} (key = {key})")
+                #print(f"Found: {''.join(decoded)} (key = {key})")
             elif key == 316:
                 decoded = str(base64.b16decode(original_value), 'utf-8')
-                print(f'Found: {decoded} (base16)')
+                #print(f'Found: {decoded} (base16)')
             elif key == 332:
                 decoded = str(base64.b32decode(original_value), 'utf-8')
-                print(f'Found: {decoded} (base32)')
+                #print(f'Found: {decoded} (base32)')
             elif key == 364:
                 decoded = str(base64.b64decode(original_value), 'utf-8')
-                print(f'Found: {decoded} (base64)')
+                #print(f'Found: {decoded} (base64)')
         for key in found_strings.keys():
             if len(found_strings[key]) >= 3:
-                print('Malicious!')
+                #print('Malicious!')
                 return True
-        print('Benign')
+        #print('Benign')
         return False
 
 
 def main():
     obfs = ObfuscationDetector()
-    obfs.analyze_file('/home/brandon/pe_data/raw/benign/ben_program_files_x86/spDx9.dll')
-    """
-    directory = '/home/brandon/pe_data/raw/benign'
+    directory = '/Users/brandonlou/Downloads/MLSEC_2020_malware'
     file_count = 0
     mal_count = 0
     for root, dirs, files in os.walk(directory):
@@ -81,7 +79,7 @@ def main():
                 print(filename)
     print('File count:', file_count)
     print('Malicious count:', mal_count)
-    """
+    
 
 if __name__ == '__main__':
     main()
